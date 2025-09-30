@@ -9,6 +9,7 @@ End-to-end pipeline to:
 - Produce test-set predictions, curves (ROC, PR, gains), and an optimal decision threshold
 - Simulate a cost-aware retention strategy to maximize expected profit
 - Explain model behavior via variable importance and partial dependence
+- Export a curated CSV for Power BI and include EDA visuals
 
 The pipeline is implemented in R with tidymodels and runs locally or in CI via GitHub Actions.
 
@@ -49,14 +50,18 @@ Outputs (artifacts and plots) are written to:
 │  ├─ utils.R                  # Helpers (config, I/O, factor handling)
 │  ├─ 01_load_data.R           # Load/generate data, persist raw.rds
 │  ├─ 02_feature_engineering.R # Feature engineering, persist processed.rds
+│  ├─ 00_eda.R                 # EDA plots and summaries
 │  ├─ 03_train_models.R        # CV, tuning, pick best, predictions & metrics
 │  ├─ 04_evaluate.R            # Curves and confusion matrix plots
 │  ├─ 05_retention_strategy.R  # Profit simulation across target fractions
-│  └─ 06_explain_model.R       # Variable importance and partial dependence
+│  ├─ 06_explain_model.R       # Variable importance and partial dependence
+│  └─ 07_export_powerbi.R      # Prepare a clean CSV for BI dashboards
 ├─ scripts/run_all.R           # Orchestrates all steps
 ├─ data/
 │  ├─ schema.md                # Expected input schema
 │  └─ customers.csv            # (Ignored by Git) optional local data
+├─ docs/
+│  └─ problem_statement.md     # Step 1: Define the Problem
 ├─ artifacts/.gitkeep
 ├─ reports/.gitkeep
 ├─ tests/
@@ -148,6 +153,7 @@ Reports (reports/):
 - lift_curve.png
 - variable_importance.png
 - partial_dependence_<feature>.png (top-3 features when supported)
+- eda_* plots (overall churn, missingness, distributions, correlations)
 
 ---
 
@@ -201,6 +207,8 @@ This project produces batch predictions and static plots. You have several deplo
       run: Rscript -e 'rmarkdown::render("reports/summary.Rmd", output_dir = "docs")'
     ```
   - Enable Pages on /docs as above
+
+  - Optional: Import `artifacts/powerbi_export.csv` into Power BI Desktop to build dashboards with churn probabilities, actuals, and key features. Publish to Power BI Service as needed.
 
 2) Expose a real-time prediction API (plumber)
 - Goal: Serve churn scores programmatically

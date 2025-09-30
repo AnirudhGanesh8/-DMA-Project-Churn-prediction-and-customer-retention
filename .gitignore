@@ -1,0 +1,23 @@
+# R project ignores
+.Rproj.user/
+.Rproj
+.Rhistory
+.RData
+.Ruserdata
+
+# VS Code
+.vscode/
+
+# OS
+Thumbs.db
+*.DS_Store
+
+# Project outputs
+DMA-project/artifacts/
+DMA-project/reports/
+DMA-project/data/customers.csv
+config.yml
+
+# Keep directories tracked
+!DMA-project/artifacts/.gitkeep
+!DMA-project/reports/.gitkeep

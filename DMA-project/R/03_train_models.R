@@ -72,8 +72,12 @@ tune_model <- function(entry) {
     res <- fit_resamples(entry$wf, folds, metrics = metric_set, control = control_resamples(save_pred = TRUE))
     list(result = res, best_params = NULL, wf_final = fit(entry$wf, train))
   } else {
-    grid <- grid_latin_hypercube(parameters(entry$wf), size = 20)
-    res <- tune_grid(entry$wf, resamples = folds, grid = grid, metrics = metric_set, control = control_grid(save_pred = TRUE))
+    # Extract tunable parameter set from the workflow and generate a grid
+    param_set <- tune::extract_parameter_set_dials(entry$wf)
+    # Finalize parameter ranges (e.g., mtry) using the training data
+    param_set <- dials::finalize(param_set, train)
+    grid <- dials::grid_space_filling(param_set, size = 20)
+    res <- tune::tune_grid(entry$wf, resamples = folds, grid = grid, metrics = metric_set, control = control_grid(save_pred = TRUE))
     best <- select_best(res, cfg$training$optimize_metric)
     wf_final <- finalize_workflow(entry$wf, best) %>% fit(train)
     list(result = res, best_params = best, wf_final = wf_final)
