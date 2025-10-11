@@ -1,0 +1,44 @@
+data:
+  path: data/customers.csv
+  id_col: customer_id
+  target_col: churn              # expected as {no, yes} factor or {0,1} convertible
+  synthetic_rows: 2000
+  test_size: 0.2                 # rsample split proportion
+  seed: 42
+
+features:
+  drop_cols: []                  # columns to drop prior to modeling
+  interactions: true
+  normalize_numeric: true
+  impute_numeric: median
+  impute_categorical: mode
+
+models:
+  logistic_reg: true
+  random_forest: true
+  xgboost: true
+  rf:
+    trees: 500
+    tune: true
+  xgb:
+    trees: 1000
+    tune: true
+
+training:
+  cv_folds: 5
+  metrics: [roc_auc, pr_auc, accuracy, kap, f_meas]
+  optimize_metric: roc_auc
+  quick: true   # set to true to speed up runs; set false for full tuning
+
+retention:
+  contact_cost_per_customer: 2.0
+  offer_cost_per_converted: 10.0
+  expected_save_rate_given_contact: 0.25   # share of true churners you save when contacted
+  expected_ltv_uplift: 80.0                 # avg profit uplift for a saved customer
+
+paths:
+  artifacts_dir: artifacts
+  reports_dir: reports
+
+reports:
+  explain: false   # set true to also generate variable importance / PDPs
